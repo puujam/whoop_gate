@@ -24,3 +24,6 @@ A project to build an Open Source infrastructure for indoor Tiny Whoop Racing Ga
 - Display
 - Speaker
 - Input Device
+
+## Reference Build
+[See here for details on how to the reference build was created](docs/reference_build/overview.md)
