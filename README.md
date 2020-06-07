@@ -2,7 +2,7 @@
 A project to build an Open Source infrastructure for indoor Tiny Whoop Racing Gates with Timing, LED Illumination, and Sound
 
 ## High Level Diagram
-![High Level Diagram here](doc/High Level Diagram.png)
+![High Level Diagram here](doc/High Level Diagram.png?raw=true "High Level Diagram")
 
 ## Materials List
 ### Gate (one set for each)
