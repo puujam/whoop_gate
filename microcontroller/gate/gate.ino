@@ -11,7 +11,7 @@
 #define RFM95_INT 3
 
 // Using a define to ensure minimal runtime penalty in production
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 	#define SERIAL_DEBUG( message ) Serial.println( message );
@@ -29,6 +29,8 @@
 #define PIR_STARTUP_PERIOD_MS 30000 // 30 seconds
 #define PIR_DEBOUNCE_PERIOD_MS 2500 // 2.5 seconds
 
+#define BUZZER_PIN 10
+
 #define SERVER_ADDRESS 1
 #define MY_ADDRESS 2
 
@@ -39,7 +41,8 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 RHReliableDatagram manager( rf95, MY_ADDRESS );
 
 // Used for tracking motion debouncing
-unsigned long last_accepted_motion = 0;
+bool motion_detected = false;
+unsigned long debounce_ends = 0;
 
 uint8_t data[ RH_RF95_MAX_MESSAGE_LEN ] = "D";
 
@@ -86,45 +89,10 @@ void radio_module_setup()
   manager.setTimeout( 200 );
 }
 
-bool motion_startup_active( unsigned long time )
+void motion_detected_handler()
 {
-	return time < PIR_STARTUP_PERIOD_MS;
-}
-
-bool debounce_active( unsigned long time )
-{
-  if ( time < PIR_DEBOUNCE_PERIOD_MS )
-  {
-    return false;
-  }
-  
-	unsigned long ms_since_last = time - last_accepted_motion;
-  
-	return ms_since_last < PIR_DEBOUNCE_PERIOD_MS;
-}
-
-void motion_detected()
-{
-	unsigned long detected_time = millis();
-
-	if ( motion_startup_active( detected_time ) )
-	{
-		SERIAL_DEBUG( "Motion before startup ignored." )
-		return;
-	}
-
-	if ( debounce_active( detected_time ) )
-	{
-		SERIAL_DEBUG( "Motion during debounce ignored." )
-		return;
-	}
-
-	// This is a valid detection
-	last_accepted_motion = detected_time;
-
-	SERIAL_DEBUG( "Motion detected!" )
-
-	queued_detect_message = true;
+  // Minimizing intterupt time
+	motion_detected = true;
 }
 
 void pin_setup()
@@ -135,7 +103,7 @@ void pin_setup()
 
 	// Set our PIR input pin as an interrupt
 	pinMode( PIR_PIN, INPUT );
-	attachInterrupt( digitalPinToInterrupt( PIR_PIN ), motion_detected, RISING );
+	attachInterrupt( digitalPinToInterrupt( PIR_PIN ), motion_detected_handler, RISING );
 
 	// Set the LED pin to output
 	pinMode( LED_BUILTIN, OUTPUT );
@@ -151,30 +119,62 @@ void setup()
 	pin_setup();
 
 	radio_module_setup();
+
+  SERIAL_DEBUG( "Setup complete" );
+}
+
+void detect_new_motion()
+{
+  if ( motion_detected )
+  {
+    if ( debounce_ends == 0 )
+    {
+      SERIAL_DEBUG( "Motion detected!" );
+      
+      debounce_ends = millis() + PIR_DEBOUNCE_PERIOD_MS;
+      queued_detect_message = true;
+
+      digitalWrite( LED_BUILTIN, HIGH );
+      tone( BUZZER_PIN, 1500 );
+    }
+  }
+}
+
+void clear_debounce()
+{
+  if ( debounce_ends != 0 )
+  {
+    if ( millis() > debounce_ends )
+    {
+      SERIAL_DEBUG( "Debounce ended" );
+      
+      motion_detected = false;
+      debounce_ends = 0;
+
+      digitalWrite( LED_BUILTIN, LOW );
+      noTone( BUZZER_PIN );
+    }
+  }
+}
+
+void send_queued_message()
+{
+  if ( queued_detect_message )
+  {
+    SERIAL_DEBUG( "Sending Message" );
+    manager.sendtoWait( data, sizeof( data ), SERVER_ADDRESS );
+    queued_detect_message = false;
+    SERIAL_DEBUG( "Message Sent" );
+  }
 }
 
 void loop()
 {
-	unsigned long current_time = millis();
+  detect_new_motion();
 
-	if ( debounce_active( current_time ) )
-	{
-    SERIAL_DEBUG( "LED On" );
-		digitalWrite( LED_BUILTIN, HIGH );
-	}
-	else
-	{
-    SERIAL_DEBUG( "LED Off" );
-		digitalWrite( LED_BUILTIN, LOW );
-	}
+  clear_debounce();
 
-  if ( queued_detect_message )
-  {
-    manager.sendtoWait( data, sizeof( data ), SERVER_ADDRESS );
-    queued_detect_message = false;
-
-    SERIAL_DEBUG( "Message Sent" );
-  }
+  send_queued_message();
 
 	delay( 50 );
 }
