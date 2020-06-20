@@ -37,11 +37,16 @@ def gtts_speak( to_speak ):
         return False
 
 def pyttsx3_speak( to_speak ):
+    """Attempts to speak the given string with pyttysx3.
+
+    :returns: Always true for now."""
+
     import pyttsx3
     engine = pyttsx3.init()
     engine.say( to_speak )
     engine.runAndWait()
 
+    # I don't know what exceptions to expect here, and it's been working fine so whatever
     return True
 
 def create_parser():
