@@ -1,0 +1,2 @@
+# ignore the python virtual environment created by create_venv.py
+host/whoop_host_venv/
