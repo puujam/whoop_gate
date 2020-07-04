@@ -1,6 +1,6 @@
 #include <LEDAnimation.h>
 
-FrameAnimation::FrameAnimation( uint8_t LED_count_in, uint8_t frame_count_in, uint32_t **frames_in )
+FrameAnimation::FrameAnimation( uint8_t LED_count_in, uint8_t frame_count_in, uint32_t *frames_in )
 {
 	LED_count = LED_count_in;
 	frame_count = frame_count_in;

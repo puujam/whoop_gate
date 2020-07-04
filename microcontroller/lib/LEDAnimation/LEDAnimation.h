@@ -21,7 +21,7 @@ class FrameAnimation
 
 		uint8_t current_frame;
 
-		FrameAnimation( uint8_t LED_count_in, uint8_t frame_count_in, uint32_t **frames_in );
+		FrameAnimation( uint8_t LED_count_in, uint8_t frame_count_in, uint32_t frames_in[][] );
 
 		void drawNext( Adafruit_NeoPixel_ZeroDMA strip );
 
@@ -30,6 +30,6 @@ class FrameAnimation
 		/* Static functions */
 		static FrameAnimation deserialize( uint16_t buffer_size, uint8_t *buffer );
 		static FrameAnimation createGradientAnimation( uint8_t led_count, uint8_t frame_count, uint8_t color_point_count, uint32_t *color_points );
-}
+};
 
 #endif

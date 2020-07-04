@@ -49,7 +49,7 @@ RHReliableDatagram manager( rf95, MY_ADDRESS );
 // Create the neopixel strip
 Adafruit_NeoPixel_ZeroDMA strip( LED_COUNT, LED_PIN, NEO_GRB );
 
-uint32_t **idle_frames = {
+uint32_t idle_frames[4][4] = {
 	{ 
 		0xFFFFFF, // white	
 		0x000000, // off
@@ -82,7 +82,7 @@ FrameAnimation idle_animation(
 	idle_frames // Frames
 );
 
-uint32_t **pass_frames = {
+uint32_t pass_frames[2][1] = {
 	{
 		0xFF0000 // red
 	},
@@ -187,7 +187,7 @@ void setup()
 
 	radio_module_setup();
 
-	pir_setup()
+	pir_setup();
 
 	builtin_led_setup();
 
@@ -247,7 +247,7 @@ void send_queued_message()
 
 void update_animation()
 {
-	LEDAnimation *active_animation = &idle_animation;
+	FrameAnimation *active_animation = &idle_animation;
 
 	if ( debounce_ends != 0 )
 	{
