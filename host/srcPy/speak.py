@@ -10,9 +10,13 @@ def gtts_speak( to_speak ):
     :returns: A boolean indicating whether the string was successfully played."""
 
     try:
+        import gtts
+    except:
+        return False
+
+    try:
         # get the mp3 formatted data from Google TTS
         # (this requires internet access)
-        import gtts
         tts = gtts.gTTS( to_speak )
         
         # write the data to a buffer

@@ -17,7 +17,7 @@ void FrameAnimation::drawNext( Adafruit_NeoPixel_ZeroDMA strip )
 	}
 
 	strip.show()
-	current_frame++;
+	current_frame = ( current_frame + 1 ) % frame_count;
 }
 
 void write_out( uint8_t *out_buffer, uint16_t *out_buffer_location, void *data, size_t data_size )
@@ -42,4 +42,8 @@ void FrameAnimation::serialize( uint16_t out_buffer_size, uint8_t *out_buffer, u
 	}
 
 	*out_written_size = current_byte;
+}
+
+void FrameAnimation::deserialize( uint16_t buffer_size, uint8_t *buffer )
+{
 }

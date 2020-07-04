@@ -13,7 +13,7 @@
 
 class FrameAnimation
 {
-/* Access controls are for cowards */
+	/* Access controls are for cowards */
 	public:
 		uint32_t **frames;
 		uint8_t frame_count;
