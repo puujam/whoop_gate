@@ -46,6 +46,7 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Create our reliable datagram manager
 RHReliableDatagram manager( rf95, MY_ADDRESS );
 
+// Create the neopixel strip
 Adafruit_NeoPixel_ZeroDMA strip( LED_COUNT, LED_PIN, NEO_GRB );
 
 uint32_t **idle_frames = {
