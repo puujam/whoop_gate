@@ -2,3 +2,4 @@ gTTs
 pyttsx3
 pygame
 pyserial
+pymongo
